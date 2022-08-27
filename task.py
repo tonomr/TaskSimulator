@@ -1,43 +1,47 @@
+from dataclasses import dataclass
+
+
+@dataclass
 class Task:
     """Data class of Task"""
+    _id_task: int
+    _execution_time: int
+    _elapsed_time: int
+    _remaining_time: int
 
-    def __init__(self, id_task, execution_time=0, elapsed_time=0, remaining_time=0):
-        self._id_task = id_task
-        self._execution_time = execution_time
-        self._elapsed_time = elapsed_time
-        self._remaining_time = remaining_time
-
-    def __str__(self):
-        return f'Task #{self._id_task}:\n' \
-               f'Execution time: {self._execution_time}s\n' \
-               f'Elapsed time: {self._elapsed_time}s\n' \
-               f'Remaining time: {self._remaining_time}s'
-
-    def get_id_task(self):
+    @property
+    def id_task(self) -> int:
         return self._id_task
 
-    def get_execution_time(self):
+    @id_task.setter
+    def id_task(self, v: int) -> None:
+        self._id_task = v
+
+    @property
+    def execution_time(self) -> int:
         return self._execution_time
 
-    def get_elapsed_time(self):
+    @execution_time.setter
+    def execution_time(self, v: int) -> None:
+        self._execution_time = v
+
+    @property
+    def elapsed_time(self) -> int:
         return self._elapsed_time
 
-    def get_remaining_time(self):
+    @elapsed_time.setter
+    def elapsed_time(self, v: int) -> None:
+        self._elapsed_time = v
+
+    @property
+    def remaining_time(self) -> int:
         return self._remaining_time
 
-    def set_id_task(self, id_task):
-        self._id_task = id_task
+    @remaining_time.setter
+    def remaining_time(self, v: int) -> None:
+        self._remaining_times = v
 
-    def set_execution_time(self, execution_time):
-        self._execution_time = execution_time
 
-    def set_elapsed_time(self, elapsed_time):
-        self._elapsed_time = elapsed_time
-
-    def set_remaining_time(self, remaining_time):
-        self._remaining_time = remaining_time
-
-# Test class object
 if __name__ == '__main__':
-    task1 = Task(0, 10, 2, 8)
-    print(task1)
+    task = Task(1, 8, 1, 7)
+    print(task)

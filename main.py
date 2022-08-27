@@ -39,7 +39,7 @@ class MainWindow(tk.Tk):
 
         self._task_list.append(task)
         self._list_box_task.insert(
-            tk.END, f'Proceso #{task.get_id_task()},  Tiempo: {task.get_execution_time()}s')
+            tk.END, f'Proceso #{task.id_task},  Tiempo: {task.execution_time}s')
 
     def _run_tasks(self, label, task_window):
         task_progress = ttk.Progressbar(
@@ -48,13 +48,13 @@ class MainWindow(tk.Tk):
 
         # Update the bar and the current task
         for task in self._task_list:
-            label.configure(text=f'Proceso #{task.get_id_task()}')
+            label.configure(text=f'Proceso #{task.id_task}')
 
             threadUpdate = Thread(
                 target=self._update_elapsed, args=(task, task_progress,))
             threadUpdate.start()
 
-            sleep(task.get_execution_time())
+            sleep(task.execution_time)
 
         # Close execution window and clean the list
         task_window.destroy()
@@ -62,13 +62,13 @@ class MainWindow(tk.Tk):
         self._list_box_task.delete(0, tk.END)
 
     def _update_elapsed(self, task, bar):
-        total_time = task.get_execution_time()
+        total_time = task.execution_time
         current_time = 1
 
         while True:
             bar['maximum'] = 100
 
-            currentV = task.get_elapsed_time()
+            currentV = task.elapsed_time
 
             # Get the progress second of the actual task and update the bar
             calculatedValue = int((currentV * bar['maximum']) / total_time)
@@ -80,8 +80,8 @@ class MainWindow(tk.Tk):
                 break
 
             current_time += 1
-            task.set_elapsed_time(current_time)
-            task.set_remaining_time(task.get_remaining_time()-1)
+            task.elapsed_time = current_time
+            task.remaining_time = task.remaining_time - 1
 
             sleep(1)
 
