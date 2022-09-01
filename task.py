@@ -39,7 +39,7 @@ class Task:
 
     @remaining_time.setter
     def remaining_time(self, v: int) -> None:
-        self._remaining_times = v
+        self._remaining_time = v
 
 
 if __name__ == '__main__':
