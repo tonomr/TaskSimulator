@@ -1,7 +1,6 @@
 import sys
 from random import randint
 from time import sleep
-
 from PySide6.QtCore import Qt, QThread, Signal
 from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QHBoxLayout, QVBoxLayout, QLabel, QListWidget, QPushButton, QProgressBar, QMessageBox
 
@@ -123,7 +122,7 @@ class WorkerThread(QThread):
                 t.elapsed_time += 1
                 t.remaining_time -= 1
                 sleep(1)
-
+            """Function that is responsible for calculating the percentage of the remaining time of the real process"""
             t.elapsed_time -= 1
             t.remaining_time += 1
 
