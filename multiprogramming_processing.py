@@ -3,7 +3,8 @@ from random import randint
 from time import sleep
 
 from PySide6.QtCore import Qt, QThread, Signal
-from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QHBoxLayout, QVBoxLayout, QLabel, QPushButton, QProgressBar, QMessageBox
+from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QHBoxLayout, QVBoxLayout, QLabel, QPushButton, \
+    QProgressBar, QMessageBox
 
 from task import Task
 
@@ -63,7 +64,7 @@ class MainWindow(QMainWindow):
         # Fill the task list
         for i in range(4):
             exec_time = randint(2, 16)
-            task = Task(i+1, exec_time, 0, exec_time)
+            task = Task(i + 1, exec_time, 0, exec_time)
             self.task_list.append(task)
 
         self.label_1.setText(
@@ -87,39 +88,38 @@ class MainWindow(QMainWindow):
             self.worker.update_progress_4.connect(self.event_worker_update_4)
             self.worker.finished.connect(self.event_worker_finish)
             return
-        
+
         QMessageBox.warning(self, 'Cuidado', 'Asigne procesos primero')
 
     def event_worker_update_1(self, value):
         """Update the bar"""
         self.bar_progress_1.setValue(value)
+        if value >= 100:
+            self.label_1.setText(f'Proceso #1, con duracion de {self.task_list[0].execution_time}s: FINALIZADO')
 
     def event_worker_update_2(self, value):
         """Update the bar"""
         self.bar_progress_2.setValue(value)
+        if value>=100:
+            self.label_2.setText(f'Proceso #2, con duracion de {self.task_list[1].execution_time}s: FINALIZADO')
 
     def event_worker_update_3(self, value):
         """Update the bar"""
         self.bar_progress_3.setValue(value)
+        if value>=100:
+            self.label_3.setText(f'Proceso #3, con duracion de {self.task_list[2].execution_time}s: FINALIZADO')
 
     def event_worker_update_4(self, value):
         """Update the bar"""
         self.bar_progress_4.setValue(value)
+        if value>=100:
+            self.label_4.setText(f'Proceso #4, con duracion de {self.task_list[3].execution_time}s: FINALIZADO')
 
     def event_worker_finish(self):
         """Clean tasks list"""
         self.task_list.clear()
         QMessageBox.information(
             self, 'Procesos terminados', 'Se ha terminado de ejecutar los procesos :)')
-
-        self.label_1.setText(
-            f'Proceso #1, FINALIZADO')
-        self.label_2.setText(
-            f'Proceso #2, FINALIZADO')
-        self.label_3.setText(
-            f'Proceso #3, FINALIZADO')
-        self.label_4.setText(
-            f'Proceso #4, FINALIZADO')
 
         self.bar_progress_1.setValue(0)
         self.bar_progress_2.setValue(0)
@@ -149,15 +149,15 @@ class WorkerThread(QThread):
     update_progress_4 = Signal(int)
 
     def run(self):
-        for s in range(self.max_time+1):
+        for s in range(self.max_time + 1):
             self.update_progress_1.emit(
-                int((self.tasks[0].elapsed_time*100) / self.tasks[0].execution_time))
+                int((self.tasks[0].elapsed_time * 100) / self.tasks[0].execution_time))
             self.update_progress_2.emit(
-                int((self.tasks[1].elapsed_time*100) / self.tasks[1].execution_time))
+                int((self.tasks[1].elapsed_time * 100) / self.tasks[1].execution_time))
             self.update_progress_3.emit(
-                int((self.tasks[2].elapsed_time*100) / self.tasks[2].execution_time))
+                int((self.tasks[2].elapsed_time * 100) / self.tasks[2].execution_time))
             self.update_progress_4.emit(
-                int((self.tasks[3].elapsed_time*100) / self.tasks[3].execution_time))
+                int((self.tasks[3].elapsed_time * 100) / self.tasks[3].execution_time))
 
             self.tasks[0].elapsed_time += 1
             self.tasks[1].elapsed_time += 1
