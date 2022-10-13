@@ -25,19 +25,37 @@ class RunProgress(QRunnable):
         self.signal = signal
         self.is_paused = False
         self.is_finished = False
+        self.quantum = 3
+        self.is_my_turn = False
 
     @Slot()
     def run(self):
         """ Run the animations """
         # This checks if the other tasks did not start yet
-        if not self.is_finished:
+        if not self.is_finished and self.is_my_turn:
+            # print(f'p{self.task.id_task} 1st check')
             self.status.setText('En Ejecucion')
 
-        for s in range(self.task.execution_time + 1):
+        current_time = 0
+
+        if self.is_my_turn and self.is_finished:
+            self.signal.finished.emit()
+
+        while self.is_my_turn and not self.is_finished:
             # Send current progress of the bar
-            self.signal.progress.emit(int((self.task.elapsed_time * 100) / self.task.execution_time))
+            # print(f'p{self.task.id_task} update progress and sleep, et{self.task.elapsed_time}, ct{current_time}')
+            self.signal.progress.emit(
+                int((self.task.elapsed_time * 100) / self.task.execution_time))
             self.task.elapsed_time += 1
+            current_time += 1
             sleep(1)
+
+            if current_time == self.quantum:
+                # print(f'p{self.task.id_task} quantom expired')
+                self.status.setText('Bloqueado')
+                self.is_my_turn = False
+                self.signal.finished.emit()
+                break
 
             # Infine loop for pause
             while self.is_paused:
@@ -46,12 +64,12 @@ class RunProgress(QRunnable):
             if self.is_finished:
                 break
 
-            if s == self.task.execution_time - 1:
+            if self.task.elapsed_time >= self.task.execution_time:
+                # print(f'p{self.task.id_task} finish all, et{self.task.elapsed_time}')
+                self.is_finished = True
+                self.signal.progress.emit(100)
                 self.status.setText('Terminado')
-
-        self.is_finished = True
-        self.signal.finished.emit()
-        self.status.setText('Terminado')
+                self.signal.finished.emit()
 
     def pause(self):
         """ Pause the progression of the bar """
@@ -73,15 +91,16 @@ class RunProgress(QRunnable):
         """ Break the progression of the bar """
         self.is_finished = True
         self.status.setText('Terminado')
+        self.signal.finished.emit()
 
 
-class FIFOMainWindow(QMainWindow):
-    """ Program that simulates FIFO algorithm for processing """
+class RRMainWindow(QMainWindow):
+    """ Program that simulates RR algorithm for processing """
 
     def __init__(self):
         # Window configs
         super().__init__()
-        self.setWindowTitle('FIFO Manager')
+        self.setWindowTitle('RR Manager')
         self.resize(600, 400)
 
         # Vars
@@ -253,30 +272,52 @@ class FIFOMainWindow(QMainWindow):
             self.button_finish.pressed.connect(self.thread_p3.finish)  # type: ignore
             self.button_finish.pressed.connect(self.thread_p4.finish)  # type: ignore
 
+            self.thread_p1.is_my_turn = True
             self.thread_pool.start(self.thread_p1)
+            self.thread_pool.start(self.thread_p2)
+            self.thread_pool.start(self.thread_p3)
+            self.thread_pool.start(self.thread_p4)
 
+            # TODO
+            # Disable the other buttons, freezing gui
             # Disable buttons while running
             self.button_assign.setDisabled(True)
             self.button_execute.setDisabled(True)
+            
             return
-        
-        QMessageBox.warning(self.container, 'Cuidado', 'Asigne procesos primero')
+
+        QMessageBox.warning(self.container, 'Cuidado','Asigne procesos primero')
     # start_execution
 
-    # Finish signals, start the next task after the previous one
+    # This slots pass the turn to the next task until all are finished
     def finish_p1(self):
-        self.thread_pool.start(self.thread_p2)
+        self.thread_p2.is_my_turn = True
+        self.thread_p2.run()
 
     def finish_p2(self):
-        self.thread_pool.start(self.thread_p3)
+        self.thread_p3.is_my_turn = True
+        self.thread_p3.run()
 
     def finish_p3(self):
-        self.thread_pool.start(self.thread_p4)
+        self.thread_p4.is_my_turn = True
+        self.thread_p4.run()
 
     def finish_p4(self):
-        # Make available to run new tasks
-        self.button_assign.setDisabled(False)
-        QMessageBox.information(self.container, 'Ejecucion Terminada', 'El Lote termino de ejecutarse')
+        # If all tasks are finished, stop the program
+        if self.all_finish():
+            QMessageBox.information(self.container, 'Ejecucion Terminada', 'El Lote termino de ejecutarse')
+            self.button_assign.setDisabled(False)
+            return
+
+        self.thread_p1.is_my_turn = True
+        self.thread_p1.run()
+
+    def all_finish(self):
+        """ Check if all tasks are finished """
+        if (self.thread_p1.is_finished and self.thread_p2.is_finished and
+                self.thread_p3.is_finished and self.thread_p4.is_finished):
+            return True
+        return False
 
     # Update signals, set the values in the bars
     def update_progress_p1(self, n):
@@ -295,6 +336,6 @@ class FIFOMainWindow(QMainWindow):
 if __name__ == '__main__':
     # Start the program
     app = QApplication()
-    window = FIFOMainWindow()
+    window = RRMainWindow()
     window.show()
     sys.exit(app.exec())
