@@ -1,9 +1,8 @@
-import imaplib
 import sys
 from random import randint
 from time import sleep
 
-from PySide6.QtCore import QThreadPool, QRunnable, QObject, Slot, Signal, QSize
+from PySide6.QtCore import QThreadPool, QRunnable, QObject, Slot, Signal
 from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QGridLayout, QHBoxLayout,
                                QVBoxLayout, QLabel, QPushButton, QProgressBar, QMessageBox)
 
