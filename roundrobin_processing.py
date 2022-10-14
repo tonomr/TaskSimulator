@@ -1,8 +1,9 @@
+import imaplib
 import sys
 from random import randint
 from time import sleep
 
-from PySide6.QtCore import QThreadPool, QRunnable, QObject, Slot, Signal
+from PySide6.QtCore import QThreadPool, QRunnable, QObject, Slot, Signal, QSize
 from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QGridLayout, QHBoxLayout,
                                QVBoxLayout, QLabel, QPushButton, QProgressBar, QMessageBox)
 
@@ -110,6 +111,13 @@ class RRMainWindow(QMainWindow):
 
         # Left Widgets
         # We make agrupations for all the widgets to have better control, making a QGridLayout for each one
+
+        #Label 1, presentation
+        Quantum = QWidget()
+        layout_q = QGridLayout(Quantum)
+        label_Quantum = QLabel('Algoritmo de planificacion Round Robin\n\nQuantum 3s')
+        layout_q.addWidget(label_Quantum, 0, 0)
+
         # Proccess 01 Set
         container_p1 = QWidget()
         layout_p1 = QGridLayout(container_p1)
@@ -186,7 +194,7 @@ class RRMainWindow(QMainWindow):
 
         layout_main.addLayout(layout_left)
         layout_main.addLayout(layout_right)
-
+        layout_left.addWidget(Quantum)
         layout_left.addWidget(container_p1)
         layout_left.addWidget(container_p2)
         layout_left.addWidget(container_p3)

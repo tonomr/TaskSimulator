@@ -6,7 +6,6 @@ from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QHBoxLayout, Q
 
 from task import Task
 
-
 class ExecutionWindow(QWidget):
     """Execution window for batching"""
 

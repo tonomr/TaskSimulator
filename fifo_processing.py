@@ -47,11 +47,11 @@ class RunProgress(QRunnable):
                 break
 
             if s == self.task.execution_time - 1:
-                self.status.setText('Terminado')
+                self.status.setText('Terminado     Tiempo de retorno:')
 
         self.is_finished = True
         self.signal.finished.emit()
-        self.status.setText('Terminado')
+        self.status.setText('Terminado     Tiempo de retorno:')
 
     def pause(self):
         """ Pause the progression of the bar """
@@ -72,7 +72,7 @@ class RunProgress(QRunnable):
     def finish(self):
         """ Break the progression of the bar """
         self.is_finished = True
-        self.status.setText('Terminado')
+        self.status.setText('Terminado     Tiempo de retorno:')
 
 
 class FIFOMainWindow(QMainWindow):
@@ -97,7 +97,7 @@ class FIFOMainWindow(QMainWindow):
 
         label_title_p1 = QLabel('Proceso 01')
         self.label_state_p1 = QLabel('Nuevo')
-        self.label_time_p1 = QLabel('0s')
+        self.label_time_p1 = QLabel('??s')
         self.progress_bar_p1 = QProgressBar()
 
         layout_p1.addWidget(label_title_p1, 0, 0)
@@ -111,7 +111,7 @@ class FIFOMainWindow(QMainWindow):
 
         label_title_p2 = QLabel('Proceso 02')
         self.label_state_p2 = QLabel('Nuevo')
-        self.label_time_p2 = QLabel('0s')
+        self.label_time_p2 = QLabel('??s')
         self.progress_bar_p2 = QProgressBar()
 
         layout_p2.addWidget(label_title_p2, 0, 0)
@@ -125,7 +125,7 @@ class FIFOMainWindow(QMainWindow):
 
         label_title_p3 = QLabel('Proceso 03')
         self.label_state_p3 = QLabel('Nuevo')
-        self.label_time_p3 = QLabel('0s')
+        self.label_time_p3 = QLabel('??s')
         self.progress_bar_p3 = QProgressBar()
 
         layout_p3.addWidget(label_title_p3, 0, 0)
@@ -139,7 +139,7 @@ class FIFOMainWindow(QMainWindow):
 
         label_title_p4 = QLabel('Proceso 04')
         self.label_state_p4 = QLabel('Nuevo')
-        self.label_time_p4 = QLabel('0s')
+        self.label_time_p4 = QLabel('??s')
         self.progress_bar_p4 = QProgressBar()
 
         layout_p4.addWidget(label_title_p4, 0, 0)
@@ -195,15 +195,11 @@ class FIFOMainWindow(QMainWindow):
             task = Task(i+1, time, 0, time)
             self.task_list.append(task)
 
-        self.label_state_p1.setText('Listo')
-        self.label_state_p2.setText('Listo')
-        self.label_state_p3.setText('Listo')
-        self.label_state_p4.setText('Listo')
+        self.label_state_p1.setText('En espera...')
+        self.label_state_p2.setText('En espera...')
+        self.label_state_p3.setText('En espera...')
+        self.label_state_p4.setText('En espera...')
 
-        self.label_time_p1.setText(f'{self.task_list[0].execution_time}s')
-        self.label_time_p2.setText(f'{self.task_list[1].execution_time}s')
-        self.label_time_p3.setText(f'{self.task_list[2].execution_time}s')
-        self.label_time_p4.setText(f'{self.task_list[3].execution_time}s')
 
         self.progress_bar_p1.setValue(0)
         self.progress_bar_p2.setValue(0)
@@ -281,15 +277,19 @@ class FIFOMainWindow(QMainWindow):
     # Update signals, set the values in the bars
     def update_progress_p1(self, n):
         self.progress_bar_p1.setValue(n)
+        self.label_time_p1.setText(f'{self.task_list[0].execution_time}s')
 
     def update_progress_p2(self, n):
         self.progress_bar_p2.setValue(n)
+        self.label_time_p2.setText(f'{self.task_list[1].execution_time}s')
 
     def update_progress_p3(self, n):
         self.progress_bar_p3.setValue(n)
+        self.label_time_p3.setText(f'{self.task_list[2].execution_time}s')
 
     def update_progress_p4(self, n):
         self.progress_bar_p4.setValue(n)
+        self.label_time_p4.setText(f'{self.task_list[3].execution_time}s')
 
 
 if __name__ == '__main__':
