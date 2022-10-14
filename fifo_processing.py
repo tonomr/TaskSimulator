@@ -152,7 +152,7 @@ class FIFOMainWindow(QMainWindow):
         self.button_resume = QPushButton('Continuar')
         self.button_pause = QPushButton('Pausar')
         self.button_finish = QPushButton('Terminar')
-        self.button_assign = QPushButton('Asignar Procesos')
+        self.button_assign = QPushButton('Preparar Procesos')
         self.button_execute = QPushButton('Ejecutar')
 
         self.button_assign.clicked.connect(self.assign_tasks)  # type: ignore
@@ -199,7 +199,6 @@ class FIFOMainWindow(QMainWindow):
         self.label_state_p2.setText('En espera...')
         self.label_state_p3.setText('En espera...')
         self.label_state_p4.setText('En espera...')
-
 
         self.progress_bar_p1.setValue(0)
         self.progress_bar_p2.setValue(0)
@@ -255,7 +254,7 @@ class FIFOMainWindow(QMainWindow):
             self.button_assign.setDisabled(True)
             self.button_execute.setDisabled(True)
             return
-        
+
         QMessageBox.warning(self.container, 'Cuidado', 'Asigne procesos primero')
     # start_execution
 
