@@ -1,0 +1,295 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>600</width>
+    <height>428</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Priority</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="3" column="0" colspan="4">
+     <widget class="QProgressBar" name="progressBar_p1">
+      <property name="value">
+       <number>0</number>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="0">
+     <widget class="QLabel" name="label_p2">
+      <property name="text">
+       <string>Proceso 02</string>
+      </property>
+     </widget>
+    </item>
+    <item row="13" column="4">
+     <widget class="QSpinBox" name="spinBox_p6">
+      <property name="maximum">
+       <number>2</number>
+      </property>
+     </widget>
+    </item>
+    <item row="8" column="1" colspan="2" alignment="Qt::AlignHCenter">
+     <widget class="QLabel" name="label_status_p4">
+      <property name="text">
+       <string>Estado</string>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="4">
+     <widget class="QSpinBox" name="spinBox_p1">
+      <property name="maximum">
+       <number>2</number>
+      </property>
+     </widget>
+    </item>
+    <item row="8" column="3">
+     <widget class="QLabel" name="label_time_p4">
+      <property name="text">
+       <string>0s</string>
+      </property>
+     </widget>
+    </item>
+    <item row="6" column="0">
+     <widget class="QLabel" name="label_p3">
+      <property name="text">
+       <string>Proceso 03</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="5" rowspan="12">
+     <widget class="Line" name="line">
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="6">
+     <widget class="QPushButton" name="pushButton_pause">
+      <property name="text">
+       <string>Pausar</string>
+      </property>
+     </widget>
+    </item>
+    <item row="13" column="0" colspan="4">
+     <widget class="QProgressBar" name="progressBar_p6">
+      <property name="value">
+       <number>0</number>
+      </property>
+     </widget>
+    </item>
+    <item row="10" column="1" colspan="2" alignment="Qt::AlignHCenter">
+     <widget class="QLabel" name="label_status_p5">
+      <property name="text">
+       <string>Estado</string>
+      </property>
+     </widget>
+    </item>
+    <item row="12" column="1" colspan="2" alignment="Qt::AlignHCenter">
+     <widget class="QLabel" name="label_status_p6">
+      <property name="text">
+       <string>Estado</string>
+      </property>
+     </widget>
+    </item>
+    <item row="10" column="3">
+     <widget class="QLabel" name="label_time_p5">
+      <property name="text">
+       <string>0s</string>
+      </property>
+     </widget>
+    </item>
+    <item row="9" column="4">
+     <widget class="QSpinBox" name="spinBox_p4">
+      <property name="maximum">
+       <number>2</number>
+      </property>
+     </widget>
+    </item>
+    <item row="11" column="4">
+     <widget class="QSpinBox" name="spinBox_p5">
+      <property name="maximum">
+       <number>2</number>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="1" colspan="2" alignment="Qt::AlignHCenter">
+     <widget class="QLabel" name="label_status_p1">
+      <property name="text">
+       <string>Estado</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="4">
+     <widget class="QLabel" name="label_priority">
+      <property name="text">
+       <string>Prioridad (0-2)</string>
+      </property>
+     </widget>
+    </item>
+    <item row="10" column="6">
+     <widget class="QPushButton" name="pushButton_execute">
+      <property name="text">
+       <string>Ejecutar</string>
+      </property>
+     </widget>
+    </item>
+    <item row="5" column="4">
+     <widget class="QSpinBox" name="spinBox_p2">
+      <property name="maximum">
+       <number>2</number>
+      </property>
+     </widget>
+    </item>
+    <item row="5" column="6">
+     <widget class="QPushButton" name="pushButton_finish">
+      <property name="text">
+       <string>Terminar</string>
+      </property>
+     </widget>
+    </item>
+    <item row="8" column="0">
+     <widget class="QLabel" name="label_p4">
+      <property name="text">
+       <string>Proceso 04</string>
+      </property>
+     </widget>
+    </item>
+    <item row="6" column="1" colspan="2" alignment="Qt::AlignHCenter">
+     <widget class="QLabel" name="label_status_p3">
+      <property name="text">
+       <string>Estado</string>
+      </property>
+     </widget>
+    </item>
+    <item row="7" column="0" colspan="4">
+     <widget class="QProgressBar" name="progressBar_p3">
+      <property name="value">
+       <number>0</number>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="1" colspan="2" alignment="Qt::AlignHCenter">
+     <widget class="QLabel" name="label_status_p2">
+      <property name="text">
+       <string>Estado</string>
+      </property>
+     </widget>
+    </item>
+    <item row="12" column="0">
+     <widget class="QLabel" name="label_p6">
+      <property name="text">
+       <string>Proceso 06</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="3">
+     <widget class="QLabel" name="label_time_p1">
+      <property name="text">
+       <string>0s</string>
+      </property>
+     </widget>
+    </item>
+    <item row="10" column="0">
+     <widget class="QLabel" name="label_p5">
+      <property name="text">
+       <string>Proceso 05</string>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="3">
+     <widget class="QLabel" name="label_time_p2">
+      <property name="text">
+       <string>0s</string>
+      </property>
+     </widget>
+    </item>
+    <item row="6" column="3">
+     <widget class="QLabel" name="label_time_p3">
+      <property name="text">
+       <string>0s</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="0">
+     <widget class="QLabel" name="label_p1">
+      <property name="text">
+       <string>Proceso 01</string>
+      </property>
+     </widget>
+    </item>
+    <item row="7" column="4">
+     <widget class="QSpinBox" name="spinBox_p3">
+      <property name="maximum">
+       <number>2</number>
+      </property>
+     </widget>
+    </item>
+    <item row="12" column="3">
+     <widget class="QLabel" name="label_time_p6">
+      <property name="text">
+       <string>0s</string>
+      </property>
+     </widget>
+    </item>
+    <item row="9" column="6">
+     <widget class="QPushButton" name="pushButton_assign">
+      <property name="text">
+       <string>Asignar Procesos</string>
+      </property>
+     </widget>
+    </item>
+    <item row="11" column="0" colspan="4">
+     <widget class="QProgressBar" name="progressBar_p5">
+      <property name="value">
+       <number>0</number>
+      </property>
+     </widget>
+    </item>
+    <item row="5" column="0" colspan="4">
+     <widget class="QProgressBar" name="progressBar_p2">
+      <property name="value">
+       <number>0</number>
+      </property>
+     </widget>
+    </item>
+    <item row="9" column="0" colspan="4">
+     <widget class="QProgressBar" name="progressBar_p4">
+      <property name="value">
+       <number>0</number>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="6">
+     <widget class="QPushButton" name="pushButton_continue">
+      <property name="text">
+       <string>Continuar</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="1" colspan="5" alignment="Qt::AlignHCenter">
+     <widget class="QLabel" name="label_title">
+      <property name="styleSheet">
+       <string notr="true"/>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::Box</enum>
+      </property>
+      <property name="text">
+       <string>Algoritmo de Planificacion por Prioridades</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
