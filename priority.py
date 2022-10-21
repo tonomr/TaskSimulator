@@ -2,11 +2,54 @@ import sys
 from random import randint
 from time import sleep
 
-from PySide6.QtCore import (QCoreApplication, QMetaObject, Qt)
+from PySide6.QtCore import (
+    QCoreApplication, QMetaObject, Qt, QObject, QRunnable, QThreadPool, Signal, Slot)
 from PySide6.QtWidgets import (QApplication, QFrame, QGridLayout,
-                               QLabel, QMainWindow, QProgressBar, QPushButton, QSpinBox, QWidget)
+                               QLabel, QMainWindow, QProgressBar, QPushButton, QSpinBox, QWidget, QMessageBox)
 
 from task import Task
+
+
+class SignalProgress(QObject):
+    """ Custom signals for our progress bars """
+    finished = Signal()
+    progress = Signal(int)
+
+
+class RunProgress(QRunnable):
+    """ Worker thread for the progress bars """
+
+    def __init__(self, task, status, signal):
+        super().__init__()
+        self.task = task
+        self.status = status
+        self.signal = signal
+        self.is_paused = False
+        self.is_finished = False
+
+    @Slot()
+    def run(self):
+        """ Run the animations """
+        self.status.setText('En Ejecucion')
+
+        for s in range(self.task.execution_time + 1):
+            # Send current progress of the bar
+            self.signal.progress.emit(
+                int((self.task.elapsed_time * 100) / self.task.execution_time))
+
+            # Infine loop for pause
+            while self.is_paused:
+                sleep(0)
+
+            if self.is_finished:
+                break
+
+            sleep(1)
+            self.task.elapsed_time += 1
+
+        self.is_finished = True
+        self.status.setText('Terminado')
+        self.signal.finished.emit()
 
 
 class MainWindow(QMainWindow):
@@ -20,6 +63,11 @@ class MainWindow(QMainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
         MainWindow.resize(600, 428)
+
+        # Vars
+        self.task_list = []
+        self.thread_pool = QThreadPool()
+        self.thread_pool.setMaxThreadCount(7)
 
         # Layout
         self.centralwidget = QWidget(MainWindow)
@@ -204,10 +252,12 @@ class MainWindow(QMainWindow):
         self.pushButton_assign = QPushButton(self.centralwidget)
         self.pushButton_assign.setObjectName(u"pushButton_assign")
         self.gridLayout.addWidget(self.pushButton_assign, 9, 6, 1, 1)
+        self.pushButton_assign.clicked.connect(self.assign_tasks)
 
         self.pushButton_execute = QPushButton(self.centralwidget)
         self.pushButton_execute.setObjectName(u"pushButton_execute")
         self.gridLayout.addWidget(self.pushButton_execute, 10, 6, 1, 1)
+        self.pushButton_execute.clicked.connect(self.start_execution)
 
         # Set all widgets in window
         MainWindow.setCentralWidget(self.centralwidget)
@@ -270,6 +320,110 @@ class MainWindow(QMainWindow):
         self.label_title.setText(QCoreApplication.translate(
             "MainWindow", u"Algoritmo de Planificacion por Prioridades", None))
     # retranslateUi
+
+    def assign_tasks(self) -> None:
+        """ Create tasks with random times, append to the list and update """
+        # Clear the list for assign new tasks
+        self.task_list.clear()
+
+        # Create new tasks, then update the program
+        for i in range(6):
+            time = randint(3, 12)
+            task = Task(i+1, time, 0, time)
+            self.task_list.append(task)
+
+        self.label_status_p1.setText('Listo')
+        self.label_status_p2.setText('Listo')
+        self.label_status_p3.setText('Listo')
+        self.label_status_p4.setText('Listo')
+        self.label_status_p5.setText('Listo')
+        self.label_status_p6.setText('Listo')
+
+        self.label_time_p1.setText(f'{self.task_list[0].execution_time}s')
+        self.label_time_p2.setText(f'{self.task_list[1].execution_time}s')
+        self.label_time_p3.setText(f'{self.task_list[2].execution_time}s')
+        self.label_time_p4.setText(f'{self.task_list[3].execution_time}s')
+        self.label_time_p5.setText(f'{self.task_list[4].execution_time}s')
+        self.label_time_p6.setText(f'{self.task_list[5].execution_time}s')
+
+        self.progressBar_p1.setValue(0)
+        self.progressBar_p2.setValue(0)
+        self.progressBar_p3.setValue(0)
+        self.progressBar_p4.setValue(0)
+        self.progressBar_p5.setValue(0)
+        self.progressBar_p6.setValue(0)
+
+        # Make available another run of the program
+        self.pushButton_execute.setDisabled(False)
+    # assing_tasks
+
+    def start_execution(self) -> None:
+        """ Set all bars threads and signals """
+        if self.task_list:
+            self.signal_p1 = SignalProgress()
+            self.thread_p1 = RunProgress(
+                self.task_list[0], self.label_status_p1, self.signal_p1)
+            self.thread_p1.signal.progress.connect(self.update_progress_p1)
+
+            self.signal_p2 = SignalProgress()
+            self.thread_p2 = RunProgress(
+                self.task_list[1], self.label_status_p2, self.signal_p2)
+            self.thread_p2.signal.progress.connect(self.update_progress_p2)
+
+            self.signal_p3 = SignalProgress()
+            self.thread_p3 = RunProgress(
+                self.task_list[2], self.label_status_p3, self.signal_p3)
+            self.thread_p3.signal.progress.connect(self.update_progress_p3)
+
+            self.signal_p4 = SignalProgress()
+            self.thread_p4 = RunProgress(
+                self.task_list[3], self.label_status_p4, self.signal_p4)
+            self.thread_p4.signal.progress.connect(self.update_progress_p4)
+
+            self.signal_p5 = SignalProgress()
+            self.thread_p5 = RunProgress(
+                self.task_list[4], self.label_status_p5, self.signal_p5)
+            self.thread_p5.signal.progress.connect(self.update_progress_p5)
+
+            self.signal_p6 = SignalProgress()
+            self.thread_p6 = RunProgress(
+                self.task_list[5], self.label_status_p6, self.signal_p6)
+            self.thread_p6.signal.progress.connect(self.update_progress_p6)
+
+            self.thread_pool.start(self.thread_p1)
+            self.thread_pool.start(self.thread_p2)
+            self.thread_pool.start(self.thread_p3)
+            self.thread_pool.start(self.thread_p4)
+            self.thread_pool.start(self.thread_p5)
+            self.thread_pool.start(self.thread_p6)
+
+            # Disable buttons while running
+            # self.pushButton_assign.setDisabled(True)
+            self.pushButton_execute.setDisabled(True)
+            return
+
+        QMessageBox.warning(self.container, 'Cuidado',
+                            'Asigne procesos primero')
+    # start_execution
+
+    # Set the values in the bars
+    def update_progress_p1(self, n) -> None:
+        self.progressBar_p1.setValue(n)
+
+    def update_progress_p2(self, n) -> None:
+        self.progressBar_p2.setValue(n)
+
+    def update_progress_p3(self, n) -> None:
+        self.progressBar_p3.setValue(n)
+
+    def update_progress_p4(self, n) -> None:
+        self.progressBar_p4.setValue(n)
+
+    def update_progress_p5(self, n) -> None:
+        self.progressBar_p5.setValue(n)
+
+    def update_progress_p6(self, n) -> None:
+        self.progressBar_p6.setValue(n)
 
 
 if __name__ == "__main__":
