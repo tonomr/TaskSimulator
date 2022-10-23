@@ -68,6 +68,10 @@ class MainWindow(QMainWindow):
         self.task_list = []
         self.thread_pool = QThreadPool()
         self.thread_pool.setMaxThreadCount(7)
+        self.priority_list = []
+        self.priority_0 = []
+        self.priority_1 = []
+        self.priority_2 = []
 
         # Layout
         self.centralwidget = QWidget(MainWindow)
@@ -360,42 +364,52 @@ class MainWindow(QMainWindow):
     def start_execution(self) -> None:
         """ Set all bars threads and signals """
         if self.task_list:
+            self.set_prioritys()
+
             self.signal_p1 = SignalProgress()
             self.thread_p1 = RunProgress(
                 self.task_list[0], self.label_status_p1, self.signal_p1)
             self.thread_p1.signal.progress.connect(self.update_progress_p1)
+            self.assign_priority(self.thread_p1)
 
             self.signal_p2 = SignalProgress()
             self.thread_p2 = RunProgress(
                 self.task_list[1], self.label_status_p2, self.signal_p2)
             self.thread_p2.signal.progress.connect(self.update_progress_p2)
+            self.assign_priority(self.thread_p2)
 
             self.signal_p3 = SignalProgress()
             self.thread_p3 = RunProgress(
                 self.task_list[2], self.label_status_p3, self.signal_p3)
             self.thread_p3.signal.progress.connect(self.update_progress_p3)
+            self.assign_priority(self.thread_p3)
 
             self.signal_p4 = SignalProgress()
             self.thread_p4 = RunProgress(
                 self.task_list[3], self.label_status_p4, self.signal_p4)
             self.thread_p4.signal.progress.connect(self.update_progress_p4)
+            self.assign_priority(self.thread_p4)
 
             self.signal_p5 = SignalProgress()
             self.thread_p5 = RunProgress(
                 self.task_list[4], self.label_status_p5, self.signal_p5)
             self.thread_p5.signal.progress.connect(self.update_progress_p5)
+            self.assign_priority(self.thread_p5)
 
             self.signal_p6 = SignalProgress()
             self.thread_p6 = RunProgress(
                 self.task_list[5], self.label_status_p6, self.signal_p6)
             self.thread_p6.signal.progress.connect(self.update_progress_p6)
+            self.assign_priority(self.thread_p6)
 
-            self.thread_pool.start(self.thread_p1)
-            self.thread_pool.start(self.thread_p2)
-            self.thread_pool.start(self.thread_p3)
-            self.thread_pool.start(self.thread_p4)
-            self.thread_pool.start(self.thread_p5)
-            self.thread_pool.start(self.thread_p6)
+            for t in self.priority_0:
+                self.thread_pool.start(t)
+            
+            for t in self.priority_1:
+                self.thread_pool.start(t)
+            
+            for t in self.priority_2:
+                self.thread_pool.start(t)
 
             # Disable buttons while running
             # self.pushButton_assign.setDisabled(True)
@@ -405,6 +419,30 @@ class MainWindow(QMainWindow):
         QMessageBox.warning(self.container, 'Cuidado',
                             'Asigne procesos primero')
     # start_execution
+
+    def set_prioritys(self) -> None:
+        self.priority_list.clear()
+        self.priority_list.append(self.spinBox_p1.value())
+        self.priority_list.append(self.spinBox_p2.value())
+        self.priority_list.append(self.spinBox_p3.value())
+        self.priority_list.append(self.spinBox_p4.value())
+        self.priority_list.append(self.spinBox_p5.value())
+        self.priority_list.append(self.spinBox_p6.value())
+
+        for i in range(6):
+            self.task_list[i].priority = self.priority_list[i] 
+    # set_prioritys
+
+    def assign_priority(self, worker) -> None:
+        if worker.task.priority == 0:
+            self.priority_0.append(worker)
+
+        elif worker.task.priority == 1:
+            self.priority_1.append(worker)
+
+        elif worker.task.priority == 2:
+            self.priority_2.append(worker)
+    # assign_priority
 
     # Set the values in the bars
     def update_progress_p1(self, n) -> None:
@@ -424,6 +462,9 @@ class MainWindow(QMainWindow):
 
     def update_progress_p6(self, n) -> None:
         self.progressBar_p6.setValue(n)
+    
+    def finish_p1(self) -> None:
+        pass
 
 
 if __name__ == "__main__":

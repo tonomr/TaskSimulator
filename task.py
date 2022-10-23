@@ -8,6 +8,7 @@ class Task:
     _execution_time: int
     _elapsed_time: int
     _remaining_time: int
+    _priority: int = -1
 
     @property
     def id_task(self) -> int:
@@ -40,6 +41,14 @@ class Task:
     @remaining_time.setter
     def remaining_time(self, v: int) -> None:
         self._remaining_time = v
+    
+    @property
+    def priority(self) -> int:
+        return self._priority
+
+    @priority.setter
+    def priority(self, v: int) -> None:
+        self._priority = v
 
 
 if __name__ == '__main__':
