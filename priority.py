@@ -11,7 +11,7 @@ from task import Task
 
 
 class SignalProgress(QObject):
-    """ Custom signals for our progress bars """
+    """ Custom signals for our threads """
     finished = Signal()
     progress = Signal(int)
 
@@ -24,8 +24,6 @@ class RunProgress(QRunnable):
         self.task = task
         self.status = status
         self.signal = signal
-        self.is_paused = False
-        self.is_finished = False
 
     @Slot()
     def run(self):
@@ -36,19 +34,28 @@ class RunProgress(QRunnable):
             # Send current progress of the bar
             self.signal.progress.emit(
                 int((self.task.elapsed_time * 100) / self.task.execution_time))
-
-            # Infine loop for pause
-            while self.is_paused:
-                sleep(0)
-
-            if self.is_finished:
-                break
-
             sleep(1)
             self.task.elapsed_time += 1
 
-        self.is_finished = True
         self.status.setText('Terminado')
+
+
+class RunPrioritys(QRunnable):
+    """ Worker thread to run every thread in a list """
+
+    def __init__(self, pool, tasks, signal) -> None:
+        super().__init__()
+        self.pool = pool
+        self.tasks = tasks
+        self.signal = signal
+
+    @Slot()
+    def run(self):
+        """ Run the respective thread in the list in order """
+        for t in self.tasks:
+            self.pool.start(t)
+            sleep(t.task.execution_time)
+
         self.signal.finished.emit()
 
 
@@ -67,7 +74,7 @@ class MainWindow(QMainWindow):
         # Vars
         self.task_list = []
         self.thread_pool = QThreadPool()
-        self.thread_pool.setMaxThreadCount(7)
+        self.thread_pool.setMaxThreadCount(10)
         self.priority_list = []
         self.priority_0 = []
         self.priority_1 = []
@@ -327,10 +334,9 @@ class MainWindow(QMainWindow):
 
     def assign_tasks(self) -> None:
         """ Create tasks with random times, append to the list and update """
-        # Clear the list for assign new tasks
         self.task_list.clear()
 
-        # Create new tasks, then update the program
+        # Create new tasks, then update the labels
         for i in range(6):
             time = randint(3, 12)
             task = Task(i+1, time, 0, time)
@@ -362,7 +368,7 @@ class MainWindow(QMainWindow):
     # assing_tasks
 
     def start_execution(self) -> None:
-        """ Set all bars threads and signals """
+        """ Create all threads and signals, execute them """
         if self.task_list:
             self.set_prioritys()
 
@@ -402,25 +408,37 @@ class MainWindow(QMainWindow):
             self.thread_p6.signal.progress.connect(self.update_progress_p6)
             self.assign_priority(self.thread_p6)
 
-            for t in self.priority_0:
-                self.thread_pool.start(t)
-            
-            for t in self.priority_1:
-                self.thread_pool.start(t)
-            
-            for t in self.priority_2:
-                self.thread_pool.start(t)
+            self.signal_priority_0 = SignalProgress()
+            self.thread_priority_0 = RunPrioritys(
+                self.thread_pool, self.priority_0, self.signal_priority_0)
+            self.thread_priority_0.signal.finished.connect(
+                self.finish_priority_0)
+
+            self.signal_priority_1 = SignalProgress()
+            self.thread_priority_1 = RunPrioritys(
+                self.thread_pool, self.priority_1, self.signal_priority_1)
+            self.thread_priority_1.signal.finished.connect(
+                self.finish_priority_1)
+
+            self.signal_priority_2 = SignalProgress()
+            self.thread_priority_2 = RunPrioritys(
+                self.thread_pool, self.priority_2, self.signal_priority_2)
+            self.thread_priority_2.signal.finished.connect(
+                self.finish_priority_2)
+
+            self.thread_pool.start(self.thread_priority_0)
 
             # Disable buttons while running
-            # self.pushButton_assign.setDisabled(True)
+            self.pushButton_assign.setDisabled(True)
             self.pushButton_execute.setDisabled(True)
             return
 
-        QMessageBox.warning(self.container, 'Cuidado',
-                            'Asigne procesos primero')
+        QMessageBox.warning(self, 'Advertencia',
+                            'Asigne procesos primero.')
     # start_execution
 
     def set_prioritys(self) -> None:
+        """ Get the prioritys values in order to assiggn them to the tasks """
         self.priority_list.clear()
         self.priority_list.append(self.spinBox_p1.value())
         self.priority_list.append(self.spinBox_p2.value())
@@ -430,10 +448,11 @@ class MainWindow(QMainWindow):
         self.priority_list.append(self.spinBox_p6.value())
 
         for i in range(6):
-            self.task_list[i].priority = self.priority_list[i] 
+            self.task_list[i].priority = self.priority_list[i]
     # set_prioritys
 
     def assign_priority(self, worker) -> None:
+        """ Append threads to respective list for running """
         if worker.task.priority == 0:
             self.priority_0.append(worker)
 
@@ -444,7 +463,7 @@ class MainWindow(QMainWindow):
             self.priority_2.append(worker)
     # assign_priority
 
-    # Set the values in the bars
+    # Signals for every progress bar to update values
     def update_progress_p1(self, n) -> None:
         self.progressBar_p1.setValue(n)
 
@@ -462,9 +481,18 @@ class MainWindow(QMainWindow):
 
     def update_progress_p6(self, n) -> None:
         self.progressBar_p6.setValue(n)
-    
-    def finish_p1(self) -> None:
-        pass
+
+    # Signals for every priority list to run in order
+    def finish_priority_0(self) -> None:
+        self.thread_pool.start(self.thread_priority_1)
+
+    def finish_priority_1(self) -> None:
+        self.thread_pool.start(self.thread_priority_2)
+
+    def finish_priority_2(self) -> None:
+        QMessageBox.information(self, 'Procesos terminados',
+                                'Todos los procesos terminaron de ejecutarse.')
+        self.pushButton_assign.setDisabled(False)
 
 
 if __name__ == "__main__":
