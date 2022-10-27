@@ -47,7 +47,7 @@ class RunProgress(QRunnable):
                 break
 
         self.status.setText('Terminado')
-    
+
     def pause(self):
         """ Pause the progression of the bar """
         if not self.is_finished:
@@ -94,13 +94,13 @@ class RunPrioritys(QRunnable):
         self.signal.finished.emit()
 
 
-class MainWindow(QMainWindow):
+class PriorityWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
 
     def setupUi(self, MainWindow) -> None:
-        """ Set the widgets in the window """
+        """ Create the widgets to setup the window """
         # Window configuration
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
@@ -460,7 +460,7 @@ class MainWindow(QMainWindow):
                 self.thread_pool, self.priority_2, self.signal_priority_2)
             self.thread_priority_2.signal.finished.connect(
                 self.finish_priority_2)
-            
+
             self.pushButton_continue.pressed.connect(self.thread_p1.resume)
             self.pushButton_pause.pressed.connect(self.thread_p1.pause)
             self.pushButton_finish.pressed.connect(self.thread_p1.finish)
@@ -560,6 +560,6 @@ class MainWindow(QMainWindow):
 
 if __name__ == "__main__":
     app = QApplication([])
-    window = MainWindow()
+    window = PriorityWindow()
     window.show()
     sys.exit(app.exec())
