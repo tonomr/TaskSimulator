@@ -24,6 +24,8 @@ class RunProgress(QRunnable):
         self.task = task
         self.status = status
         self.signal = signal
+        self.is_paused = False
+        self.is_finished = False
 
     @Slot()
     def run(self):
@@ -37,6 +39,32 @@ class RunProgress(QRunnable):
             sleep(1)
             self.task.elapsed_time += 1
 
+            # Infine loop for pause
+            while self.is_paused:
+                sleep(0)
+
+            if self.is_finished:
+                break
+
+        self.status.setText('Terminado')
+    
+    def pause(self):
+        """ Pause the progression of the bar """
+        if not self.is_finished:
+            self.is_paused = True
+            if self.task.elapsed_time != 0:
+                self.status.setText('Bloqueado')
+
+    def resume(self):
+        """ Resume the progression of the bar """
+        if not self.is_finished:
+            self.is_paused = False
+            if self.task.elapsed_time != 0:
+                self.status.setText('En Ejecucion')
+
+    def finish(self):
+        """ Break the progression of the bar """
+        self.is_finished = True
         self.status.setText('Terminado')
 
 
@@ -54,7 +82,14 @@ class RunPrioritys(QRunnable):
         """ Run the respective thread in the list in order """
         for t in self.tasks:
             self.pool.start(t)
-            sleep(t.task.execution_time)
+
+            while t.is_paused:
+                sleep(0)
+
+            if t.is_finished:
+                break
+
+            sleep(t.task.execution_time + 1)
 
         self.signal.finished.emit()
 
@@ -279,7 +314,7 @@ class MainWindow(QMainWindow):
     def retranslateUi(self, MainWindow) -> None:
         """ Set the text in widgets """
         MainWindow.setWindowTitle(QCoreApplication.translate(
-            "MainWindow", u"Priority", None))
+            "MainWindow", u"Priority Manager", None))
         self.label_p2.setText(QCoreApplication.translate(
             "MainWindow", u"Proceso 02", None))
         self.label_status_p4.setText(
@@ -425,6 +460,30 @@ class MainWindow(QMainWindow):
                 self.thread_pool, self.priority_2, self.signal_priority_2)
             self.thread_priority_2.signal.finished.connect(
                 self.finish_priority_2)
+            
+            self.pushButton_continue.pressed.connect(self.thread_p1.resume)
+            self.pushButton_pause.pressed.connect(self.thread_p1.pause)
+            self.pushButton_finish.pressed.connect(self.thread_p1.finish)
+
+            self.pushButton_continue.pressed.connect(self.thread_p2.resume)
+            self.pushButton_pause.pressed.connect(self.thread_p2.pause)
+            self.pushButton_finish.pressed.connect(self.thread_p2.finish)
+
+            self.pushButton_continue.pressed.connect(self.thread_p3.resume)
+            self.pushButton_pause.pressed.connect(self.thread_p3.pause)
+            self.pushButton_finish.pressed.connect(self.thread_p3.finish)
+
+            self.pushButton_continue.pressed.connect(self.thread_p4.resume)
+            self.pushButton_pause.pressed.connect(self.thread_p4.pause)
+            self.pushButton_finish.pressed.connect(self.thread_p4.finish)
+
+            self.pushButton_continue.pressed.connect(self.thread_p5.resume)
+            self.pushButton_pause.pressed.connect(self.thread_p5.pause)
+            self.pushButton_finish.pressed.connect(self.thread_p5.finish)
+
+            self.pushButton_continue.pressed.connect(self.thread_p6.resume)
+            self.pushButton_pause.pressed.connect(self.thread_p6.pause)
+            self.pushButton_finish.pressed.connect(self.thread_p6.finish)
 
             self.thread_pool.start(self.thread_priority_0)
 
@@ -438,8 +497,12 @@ class MainWindow(QMainWindow):
     # start_execution
 
     def set_prioritys(self) -> None:
-        """ Get the prioritys values in order to assiggn them to the tasks """
+        """ Clear prioritys lists and get the prioritys values in order to assiggn them to the tasks """
         self.priority_list.clear()
+        self.priority_0.clear()
+        self.priority_1.clear()
+        self.priority_2.clear()
+
         self.priority_list.append(self.spinBox_p1.value())
         self.priority_list.append(self.spinBox_p2.value())
         self.priority_list.append(self.spinBox_p3.value())
