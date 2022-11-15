@@ -1,5 +1,5 @@
 """ 
-real-memory_manager.py
+virtual-memory_manager.py
 Antonio Magaña Reynoso - 218744856
 Seminario de Solucion de Problemas de Sistemas Operativos - D05
 """
@@ -26,25 +26,25 @@ class RunProcess(QRunnable):
 
     @Slot()
     def run(self) -> None:
-        for s in range(6):
+        for s in range(9):
             print(f'{s}s')
             sleep(1.0)
 
         self.signal.finished.emit()
 
 
-class RealMemoryManagerWindow(QMainWindow):
+class VirtualMemoryManagerWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
     # __init__
 
-    def setupUi(self, MainWindow: QMainWindow) -> None:
+    def setupUi(self, MainWindow):
         """ Create the widgets to setup the window """
         # Window configuration
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(700, 400)
+        MainWindow.resize(560, 320)
 
         # Layout
         self.centralwidget = QWidget(MainWindow)
@@ -54,9 +54,9 @@ class RealMemoryManagerWindow(QMainWindow):
 
         # Vars
         self.thread_pool = QThreadPool()
-        self.thread_pool.setMaxThreadCount(6)
+        self.thread_pool.setMaxThreadCount(11)
 
-        # Labels
+        # Label
         self.label_title = QLabel(self.centralwidget)
         self.label_title.setObjectName(u"label_title")
         self.label_title.setFrameShape(QFrame.Box)
@@ -82,14 +82,20 @@ class RealMemoryManagerWindow(QMainWindow):
         self.label_real_memory.setAlignment(Qt.AlignCenter)
         self.gridLayout.addWidget(self.label_real_memory, 3, 1, 1, 2)
 
-        # LCD Number
+        self.label_virtual_memory = QLabel(self.centralwidget)
+        self.label_virtual_memory.setObjectName(u"label_virtual_memory")
+        self.label_virtual_memory.setFrameShape(QFrame.WinPanel)
+        self.label_virtual_memory.setAlignment(Qt.AlignCenter)
+        self.gridLayout.addWidget(self.label_virtual_memory, 6, 1, 1, 2)
+
+        # LCDNumber
         self.lcdNumber_tasks_number = QLCDNumber(self.centralwidget)
         self.lcdNumber_tasks_number.setObjectName(u"lcdNumber_tasks_number")
         self.lcdNumber_tasks_number.setFrameShadow(QFrame.Plain)
         self.lcdNumber_tasks_number.setSegmentStyle(QLCDNumber.Flat)
         self.gridLayout.addWidget(self.lcdNumber_tasks_number, 2, 0, 1, 1)
 
-        # PushButtons
+        # PushButton
         self.pushButton_new_task2b = QPushButton(self.centralwidget)
         self.pushButton_new_task2b.setObjectName(u"pushButton_new_task2b")
         self.gridLayout.addWidget(self.pushButton_new_task2b, 2, 1, 1, 1)
@@ -108,11 +114,24 @@ class RealMemoryManagerWindow(QMainWindow):
         self.pushButton_new_task6b.clicked.connect(
             lambda: self.create_task(60))
 
+        # Line
+        self.line = QFrame(self.centralwidget)
+        self.line.setObjectName(u"line")
+        self.line.setFrameShape(QFrame.HLine)
+        self.line.setFrameShadow(QFrame.Sunken)
+        self.gridLayout.addWidget(self.line, 5, 0, 1, 4)
+
         # ProgressBar
         self.progressBar_real_memory = QProgressBar(self.centralwidget)
         self.progressBar_real_memory.setObjectName(u"progressBar_real_memory")
         self.progressBar_real_memory.setValue(0)
         self.gridLayout.addWidget(self.progressBar_real_memory, 4, 0, 1, 4)
+
+        self.progressBar_virtual_memory = QProgressBar(self.centralwidget)
+        self.progressBar_virtual_memory.setObjectName(
+            u"progressBar_virtual_memory")
+        self.progressBar_virtual_memory.setValue(0)
+        self.gridLayout.addWidget(self.progressBar_virtual_memory, 7, 0, 1, 4)
 
         # Set all widgets in the window
         MainWindow.setCentralWidget(self.centralwidget)
@@ -120,12 +139,11 @@ class RealMemoryManagerWindow(QMainWindow):
         QMetaObject.connectSlotsByName(MainWindow)
     # setupUi
 
-    def retranslateUi(self, MainWindow: QMainWindow) -> None:
-        """ Set text in widgets """
+    def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QCoreApplication.translate(
-            "MainWindow", u"Real Memory Manager - AMR", None))
+            "MainWindow", u"Virtual Memory Manager - AMR", None))
         self.label_title.setText(QCoreApplication.translate(
-            "MainWindow", u"Administrador de Memoria Real", None))
+            "MainWindow", u"Administrador de Memoria Virtual", None))
         self.label_tasks_number.setText(QCoreApplication.translate(
             "MainWindow", u"Procesos en Memoria", None))
         self.label_create_tasks.setText(QCoreApplication.translate(
@@ -140,37 +158,65 @@ class RealMemoryManagerWindow(QMainWindow):
             "MainWindow", u"Memoria Real Ocupada", None))
         self.progressBar_real_memory.setFormat(
             QCoreApplication.translate("MainWindow", u"%p%", None))
+        self.label_virtual_memory.setText(QCoreApplication.translate(
+            "MainWindow", u"Memoria Virtual Ocupada", None))
+        self.progressBar_virtual_memory.setFormat(
+            QCoreApplication.translate("MainWindow", u"%p%", None))
     # retranslateUi
 
     def create_task(self, blocks: int) -> None:
-        mem_cap = self.progressBar_real_memory.value() + blocks
-        if mem_cap <= 100:
-            print(f'enough memory for {blocks}blocks')
+        real_mem_cap = self.progressBar_real_memory.value() + blocks
+        virtual_mem_cap = self.progressBar_virtual_memory.value() + blocks
+        if real_mem_cap <= 100:
+            print(f'enough r-memory for {blocks}blocks')
             self.lcdNumber_tasks_number.display(
                 self.lcdNumber_tasks_number.intValue() + 1)
             self.progressBar_real_memory.setValue(
                 self.progressBar_real_memory.value() + blocks)
             signal = SignalProcess()
             process = RunProcess(signal, blocks)
-            process.signal.finished.connect(lambda: self.finish_task(blocks))
+            process.signal.finished.connect(
+                lambda: self.finish_task_real(blocks))
 
             self.thread_pool.start(process)
 
         else:
-            print(f'not enough memory for {blocks}blocks')
+            if virtual_mem_cap <= 100:
+                print(f'enough v-memory for {blocks}blocks')
+                self.lcdNumber_tasks_number.display(
+                    self.lcdNumber_tasks_number.intValue() + 1)
+                self.progressBar_virtual_memory.setValue(
+                    self.progressBar_virtual_memory.value() + blocks)
+                signal = SignalProcess()
+                process = RunProcess(signal, blocks)
+                process.signal.finished.connect(
+                    lambda: self.finish_task_virtual(blocks))
+
+                self.thread_pool.start(process)
+            else:
+                print(f'not enough memory for {blocks}blocks')
 
     # create_task
 
-    def finish_task(self, blocks: int):
+    def finish_task_real(self, blocks: int):
         print('finished')
         self.progressBar_real_memory.setValue(
             self.progressBar_real_memory.value() - blocks)
         self.lcdNumber_tasks_number.display(
             self.lcdNumber_tasks_number.intValue() - 1)
+    # finish_task_real
+
+    def finish_task_virtual(self, blocks: int):
+        print('finished')
+        self.progressBar_virtual_memory.setValue(
+            self.progressBar_virtual_memory.value() - blocks)
+        self.lcdNumber_tasks_number.display(
+            self.lcdNumber_tasks_number.intValue() - 1)
+    # finish_task_virtual
 
 
 if __name__ == '__main__':
     app = QApplication([])
-    window = RealMemoryManagerWindow()
+    window = VirtualMemoryManagerWindow()
     window.show()
     exit(app.exec())

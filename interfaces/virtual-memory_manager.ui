@@ -6,30 +6,28 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>554</width>
-    <height>322</height>
+    <width>560</width>
+    <height>320</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Real Memory Manager - AMR</string>
+   <string>Virtual Memory Manager - AMR</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
-    <item row="4" column="0" colspan="4">
-     <widget class="QProgressBar" name="progressBar_real_memory">
-      <property name="value">
-       <number>0</number>
+    <item row="0" column="1" colspan="2">
+     <widget class="QLabel" name="label_title">
+      <property name="frameShape">
+       <enum>QFrame::Box</enum>
       </property>
-      <property name="format">
-       <string>%p%</string>
+      <property name="frameShadow">
+       <enum>QFrame::Plain</enum>
       </property>
-     </widget>
-    </item>
-    <item row="2" column="1">
-     <widget class="QPushButton" name="pushButton_new_task2b">
       <property name="text">
-       <string>Crear nuevo 
-proceso (2 bloques)</string>
+       <string>Administrador de Memoria Virtual</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
       </property>
      </widget>
     </item>
@@ -47,7 +45,7 @@ proceso (2 bloques)</string>
      </widget>
     </item>
     <item row="1" column="2">
-     <widget class="QLabel" name="label">
+     <widget class="QLabel" name="label_create_tasks">
       <property name="frameShape">
        <enum>QFrame::WinPanel</enum>
       </property>
@@ -66,6 +64,22 @@ proceso (2 bloques)</string>
       </property>
       <property name="segmentStyle">
        <enum>QLCDNumber::Flat</enum>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="1">
+     <widget class="QPushButton" name="pushButton_new_task2b">
+      <property name="text">
+       <string>Crear nuevo 
+proceso (2 bloques)</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="2">
+     <widget class="QPushButton" name="pushButton_new_task4b">
+      <property name="text">
+       <string>Crear nuevo 
+proceso (4 bloques)</string>
       </property>
      </widget>
     </item>
@@ -90,27 +104,43 @@ proceso (6 bloques)</string>
       </property>
      </widget>
     </item>
-    <item row="2" column="2">
-     <widget class="QPushButton" name="pushButton_new_task4b">
-      <property name="text">
-       <string>Crear nuevo 
-proceso (4 bloques)</string>
+    <item row="4" column="0" colspan="4">
+     <widget class="QProgressBar" name="progressBar_real_memory">
+      <property name="value">
+       <number>0</number>
+      </property>
+      <property name="format">
+       <string>%p%</string>
       </property>
      </widget>
     </item>
-    <item row="0" column="1" colspan="2">
-     <widget class="QLabel" name="label_title">
-      <property name="frameShape">
-       <enum>QFrame::Box</enum>
+    <item row="5" column="0" colspan="4">
+     <widget class="Line" name="line">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
       </property>
-      <property name="frameShadow">
-       <enum>QFrame::Plain</enum>
+     </widget>
+    </item>
+    <item row="6" column="1" colspan="2">
+     <widget class="QLabel" name="label_virtual_memory">
+      <property name="frameShape">
+       <enum>QFrame::WinPanel</enum>
       </property>
       <property name="text">
-       <string>Administrador de Memoria Real</string>
+       <string>Memoria Virtual Ocupada</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+    </item>
+    <item row="7" column="0" colspan="4">
+     <widget class="QProgressBar" name="progressBar_virtual_memory">
+      <property name="value">
+       <number>0</number>
+      </property>
+      <property name="format">
+       <string>%p%</string>
       </property>
      </widget>
     </item>
