@@ -1,13 +1,39 @@
-"""
+""" 
 real-memory_manager.py
+Antonio Magaña Reynoso - 218744856
+Seminario de Solucion de Problemas de Sistemas Operativos - D05
 """
 
 from sys import exit
 from time import sleep
 
-from PySide6.QtCore import QCoreApplication, QMetaObject, Qt
-from PySide6.QtWidgets import (QApplication, QFrame, QGridLayout, QLCDNumber,
-                               QLabel, QMainWindow, QProgressBar, QPushButton, QWidget)
+from PySide6.QtCore import (QCoreApplication, QMetaObject, QObject, QRunnable,
+                            Qt, QThreadPool, Signal, Slot)
+from PySide6.QtWidgets import (QApplication, QFrame, QGridLayout, QLabel,
+                               QLCDNumber, QMainWindow, QProgressBar,
+                               QPushButton, QWidget)
+
+
+class SignalProcess(QObject):
+    finished = Signal()
+
+
+class RunProcess(QRunnable):
+    def __init__(self, signal: SignalProcess, blocks: int) -> None:
+        super().__init__()
+        self.signal = signal
+        self.blocks = blocks
+
+    @Slot()
+    def run(self) -> None:
+        for s in range(6):
+            print(f'{s}s')
+            sleep(1.0)
+
+        self.signal.finished.emit()
+
+    def finish(self) -> None:
+        print('finished')
 
 
 class RealMemoryManagerWindow(QMainWindow):
@@ -28,6 +54,10 @@ class RealMemoryManagerWindow(QMainWindow):
         self.centralwidget.setObjectName(u"centralwidget")
         self.gridLayout = QGridLayout(self.centralwidget)
         self.gridLayout.setObjectName(u"gridLayout")
+
+        # Vars
+        self.thread_pool = QThreadPool()
+        self.thread_pool.setMaxThreadCount(6)
 
         # Labels
         self.label_title = QLabel(self.centralwidget)
@@ -66,17 +96,20 @@ class RealMemoryManagerWindow(QMainWindow):
         self.pushButton_new_task2b = QPushButton(self.centralwidget)
         self.pushButton_new_task2b.setObjectName(u"pushButton_new_task2b")
         self.gridLayout.addWidget(self.pushButton_new_task2b, 2, 1, 1, 1)
-        self.pushButton_new_task2b.clicked.connect(lambda: self.create_task(2))
+        self.pushButton_new_task2b.clicked.connect(
+            lambda: self.create_task(20))
 
         self.pushButton_new_task4b = QPushButton(self.centralwidget)
         self.pushButton_new_task4b.setObjectName(u"pushButton_new_task4b")
         self.gridLayout.addWidget(self.pushButton_new_task4b, 2, 2, 1, 1)
-        self.pushButton_new_task4b.clicked.connect(lambda: self.create_task(4))
+        self.pushButton_new_task4b.clicked.connect(
+            lambda: self.create_task(40))
 
         self.pushButton_new_task6b = QPushButton(self.centralwidget)
         self.pushButton_new_task6b.setObjectName(u"pushButton_new_task6b")
         self.gridLayout.addWidget(self.pushButton_new_task6b, 2, 3, 1, 1)
-        self.pushButton_new_task6b.clicked.connect(lambda: self.create_task(6))
+        self.pushButton_new_task6b.clicked.connect(
+            lambda: self.create_task(60))
 
         # ProgressBar
         self.progressBar_real_memory = QProgressBar(self.centralwidget)
@@ -112,9 +145,31 @@ class RealMemoryManagerWindow(QMainWindow):
             QCoreApplication.translate("MainWindow", u"%p%", None))
     # retranslateUi
 
-    def create_task(self, blocks: int = 2) -> None:
-        print(f'hi {blocks}')
+    def create_task(self, blocks: int) -> None:
+        mem_cap = self.progressBar_real_memory.value() + blocks
+        if mem_cap <= 100:
+            print(f'enough memory for {blocks}blocks')
+            self.lcdNumber_tasks_number.display(
+                self.lcdNumber_tasks_number.intValue() + 1)
+            self.progressBar_real_memory.setValue(
+                self.progressBar_real_memory.value() + blocks)
+            signal = SignalProcess()
+            process = RunProcess(signal, blocks)
+            process.signal.finished.connect(lambda: self.finish_task(blocks))
+
+            self.thread_pool.start(process)
+
+        else:
+            print(f'not enough memory for {blocks}blocks')
+
     # create_task
+
+    def finish_task(self, blocks: int):
+        print('finished')
+        self.progressBar_real_memory.setValue(
+            self.progressBar_real_memory.value() - blocks)
+        self.lcdNumber_tasks_number.display(
+            self.lcdNumber_tasks_number.intValue() - 1)
 
 
 if __name__ == '__main__':
