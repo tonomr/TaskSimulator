@@ -4,10 +4,47 @@ Antonio Magaña Reynoso - 218744856
 Seminario de Solucion de Problemas de Sistemas Operativos - D05
 """
 
-from PySide6.QtCore import QCoreApplication, QMetaObject, Qt
+import sys
+from time import sleep
+
+from PySide6.QtCore import (QCoreApplication, QMetaObject, QObject, QRunnable,
+                            Qt, QThreadPool, Signal, Slot)
 from PySide6.QtWidgets import (QApplication, QFrame, QGridLayout, QLabel,
                                QLineEdit, QMainWindow, QProgressBar,
                                QPushButton, QWidget)
+
+
+class SignalProcess(QObject):
+    wait_input = Signal()
+    resume = Signal()
+    finished = Signal()
+
+
+class RunProcess(QRunnable):
+    def __init__(self, signal: SignalProcess, status: QLabel, progress: QProgressBar) -> None:
+        super().__init__()
+        self.signal = signal
+        self.status = status
+        self.progress = progress
+
+    @Slot()
+    def run(self) -> None:
+        self.status.setText('En ejecución')
+        for s in range(6):
+            self.progress.setValue(self.progress.value() + 10)
+            sleep(1.0)
+
+        self.status.setText('En espera de entrada')
+        self.signal.wait_input.emit()
+
+    def resume(self):
+        self.status.setText('En ejecución')
+        for s in range(4):
+            self.progress.setValue(self.progress.value() + 10)
+            sleep(1.0)
+
+        self.status.setText('Terminado')
+        self.signal.finished.emit()
 
 
 class IOProblemWindow(QMainWindow):
@@ -22,6 +59,10 @@ class IOProblemWindow(QMainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
         MainWindow.resize(480, 320)
+
+        # Vars
+        self.thread_pool = QThreadPool()
+        self.thread_pool.setMaxThreadCount(4)
 
         # Layout
         self.centralwidget = QWidget(MainWindow)
@@ -119,16 +160,19 @@ class IOProblemWindow(QMainWindow):
         self.pushButton_continue1.setObjectName(u"pushButton_continue1")
         self.pushButton_continue1.setEnabled(False)
         self.gridLayout.addWidget(self.pushButton_continue1, 2, 6, 1, 1)
+        self.pushButton_continue1.clicked.connect(self.resume_p1)
 
         self.pushButton_continue2 = QPushButton(self.centralwidget)
         self.pushButton_continue2.setObjectName(u"pushButton_continue2")
         self.pushButton_continue2.setEnabled(False)
         self.gridLayout.addWidget(self.pushButton_continue2, 4, 6, 1, 1)
+        self.pushButton_continue2.clicked.connect(self.resume_p2)
 
         self.pushButton_start_execution = QPushButton(self.centralwidget)
         self.pushButton_start_execution.setObjectName(
             u"pushButton_start_execution")
         self.gridLayout.addWidget(self.pushButton_start_execution, 8, 3, 1, 2)
+        self.pushButton_start_execution.clicked.connect(self.start_execution)
 
         # Line
         self.line = QFrame(self.centralwidget)
@@ -174,9 +218,88 @@ class IOProblemWindow(QMainWindow):
             QCoreApplication.translate("MainWindow", u"Inactivo", None))
     # retranslateUi
 
+    def start_execution(self):
+        print('starting!')
+        self.signal_p1 = SignalProcess()
+        self.p1 = RunProcess(
+            self.signal_p1, self.label_status_p1, self.progressBar_p1)
+        self.p1.signal.wait_input.connect(self.waiting_input_p1)
+        self.p1.signal.resume.connect(self.p1.resume)
+        self.p1.signal.finished.connect(self.finish_p1)
+
+        self.signal_p2 = SignalProcess()
+        self.p2 = RunProcess(
+            self.signal_p2, self.label_status_p2, self.progressBar_p2)
+        self.p2.signal.wait_input.connect(self.waiting_input_p2)
+        self.p2.signal.resume.connect(self.p2.resume)
+        self.p2.signal.finished.connect(self.finish_p2)
+
+        self.signal_p3 = SignalProcess()
+        self.p3 = RunProcess(
+            self.signal_p3, self.label_status_p3, self.progressBar_p3)
+        self.p3.signal.wait_input.connect(self.waiting_input_p3)
+        self.p3.signal.resume.connect(self.p3.resume)
+        self.p3.signal.finished.connect(self.finish_p3)
+
+        self.thread_pool.start(self.p1)
+    # start_execution
+
+    def waiting_input_p1(self):
+        self.lineEdit_p1.setEnabled(True)
+        self.pushButton_continue1.setEnabled(True)
+    # waiting_input_p1
+
+    def waiting_input_p2(self):
+        self.lineEdit_p2.setEnabled(True)
+        self.pushButton_continue2.setEnabled(True)
+    # waiting_input_p2
+
+    def waiting_input_p3(self):
+        self.p3.signal.resume.emit()
+    # waiting_input_p3
+
+    def resume_p1(self):
+        self.p1_result = self.lineEdit_p1.text()
+        if self.p1_result:
+            print(self.p1_result)
+            self.lineEdit_p1.setEnabled(False)
+            self.pushButton_continue1.setEnabled(False)
+
+            self.p1.signal.resume.emit()
+        else:
+            print('nothing!')
+    # resume_p1
+
+    def resume_p2(self):
+        self.p2_result = self.lineEdit_p2.text()
+        if self.p2_result:
+            print(self.p2_result)
+            self.lineEdit_p2.setEnabled(False)
+            self.pushButton_continue2.setEnabled(False)
+
+            self.p2.signal.resume.emit()
+        else:
+            print('nothing!')
+    # resume_p2
+
+    def finish_p1(self):
+        print('starting p2')
+        self.thread_pool.start(self.p2)
+    # finish_p1
+
+    def finish_p2(self):
+        print('starting p3')
+        self.thread_pool.start(self.p3)
+    # finish_p2
+
+    def finish_p3(self):
+        self.lineEdit_p3.setText(f'{self.p1_result} {self.p2_result}')
+        print('finished p3')
+    # finish_p3
+
 
 if __name__ == '__main__':
     app = QApplication([])
     window = IOProblemWindow()
     window.show()
-    exit(app.exec())
+    sys.exit(app.exec())
